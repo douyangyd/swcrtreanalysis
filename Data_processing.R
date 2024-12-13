@@ -1,23 +1,8 @@
-# Load all package
-library(dplyr)
-library(msm)
-library(lmerTest)
-library(splines)
-library(performance)
-library(stringr)
-
-
 # Data Processing
+process_data <- function(data) {
 
-## Helper function: calculate CI with t-distribution
-cal_confint_t <- function(pe, df, se){
-  cihigh <- pe + qt(0.975, df)*se
-  cilow <- pe - qt(0.975, df)*se
-  return(cbind(cilow, cihigh))
-}
 ### Identify outcome columns (assuming outcome columns are named 'outcome1', 'outcome2', etc.)
 outcome_columns <- grep("out", names(data), value = TRUE)
-
 
 ### number of binary outcome
 binary_columns <-grep("bin", names(data), value=TRUE)
@@ -54,7 +39,7 @@ dataset_copies
 data.format <- function(dataset_copies){
   data <- list()
   for (i in 1:length(dataset_copies)){
-    data[[i]] <- rename(dataset_copies[[i]], Outcome = outcome, Cluster = id_cluster, Treatment = trt, Period = time, Exposure = time_on_trt)
+    data[[i]] <- dplyr::rename(dataset_copies[[i]], Outcome = outcome, Cluster = id_cluster, Treatment = trt, Period = time, Exposure = time_on_trt)
     data[[i]][,c("Cluster", "Treatment", "Period", "Exposure")] <- lapply(data[[i]][,c("Cluster", "Treatment", "Period", "Exposure")], factor)
   }
   return(data)
@@ -62,3 +47,7 @@ data.format <- function(dataset_copies){
 
 ## Return the list of the dataset
 data <- data.format(dataset_copies)
+
+return(data)
+
+}
