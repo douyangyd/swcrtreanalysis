@@ -1,4 +1,4 @@
-# Analyze the binary outcome
+# Analyze the Gaussian outcome with cohort design
 fit.data.gaussian.CO <- function(
     data,                  # standardized dataset
     rve_type,              # RVE type: MD was recommended 

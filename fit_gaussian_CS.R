@@ -1,4 +1,4 @@
-# Analyze the binary outcome
+# Analyze the Gaussian outcome with cross-sectional design
 fit.data.guassian.CS <- function(
     data,                  # standardized dataset
     rve_type,              # RVE type: MD was recommended 

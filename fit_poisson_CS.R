@@ -1,4 +1,4 @@
-# Analyze the binary outcome
+# Analyze the Poisson outcome with cohort design
 fit.data.poisson.CS <- function(
     data,                  # standardized dataset
     rve_type,              # RVE type: MD was recommended 
