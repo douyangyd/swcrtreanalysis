@@ -6,6 +6,6 @@ The repository contains several code files:
 - Please read Testing-Example.pdf for more explanation and an example how we will use all code for the analysis of a standardized file
 - Data_processing.R is used to process the standardized dataset
 - fit_*.R are files to fit the dataset with different models
-
+- **RMD** file for Testing-Example file was added
 
 
