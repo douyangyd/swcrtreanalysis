@@ -24,7 +24,7 @@ files <- c("Data_processing.R", "fit_binary_CS.R", "helpers.R",
            "fit_binary_CO.R", "fit_gaussian_CS.R", "fit_gaussian_CO.R",
            "fit_poisson_CS.R", "fit_poisson_CO.R")
 for (file in files) { do.call("source", list(file)) }
-source("G:/Shared drives/Stepped Wedge Data Files/calls/23jul2024/Robust Variance/vcovCRglmerMod.R") # Temporary
+source("G:/Shared drives/Stepped Wedge Data Files/Software/Robust Variance/vcovCRglmerMod.R") # Temporary
 
 # Loop through datasets and run analysis
 for (i in cfg$ind) {
