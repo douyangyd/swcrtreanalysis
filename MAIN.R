@@ -2,7 +2,7 @@
 cfg <- list(
   quiet = T,
   pkgs = c("dplyr", "msm", "lmerTest", "splines", "performance", "stringr",
-           "sandwich", "clubSandwich", "WoodburyMatrix"),
+           "sandwich", "clubSandwich", "WoodburyMatrix", "steppedwedge"),
   path = "G:/Shared drives/Stepped Wedge Data Files/Trials/",
   wd = "swcrtreanalysis",
   ind = 23 # This corresponds to the datasets in dir(cfg$path)
@@ -10,6 +10,8 @@ cfg <- list(
 )
 
 # Load packages
+# To install `steppedwedge`, run the following:
+#     devtools::install_github(repo="Avi-Kenny/steppedwedge", dependencies=T)
 for (pkg in c(cfg$pkgs)) {
   if (cfg$quiet) {
     suppressMessages({ do.call("library", list(pkg)) })
