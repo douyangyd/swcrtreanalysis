@@ -23,21 +23,21 @@ fit.data.binary.CO <- function(
                           family = "binomial", data = data), silent = TRUE)
       if(check_convergence(model3)[1] == F) {
         ITconverge <- 0
-        message("All models failed to converge.")
+        message("IT All models failed to converge.")
     } else {
       IT <- model3
       ITconverge <- 3
-      message("model3 converged successfully.")
+      message("IT model3 converged successfully.")
     }
   } else {
     IT <- model2
     ITconverge <- 2
-    message("model2 converged successfully.")
+    message("IT model2 converged successfully.")
   }
   } else {
-    IT <- model
+    IT <- model1
     ITconverge <- 1
-    message("model1 converged successfully.")
+    message("IT model1 converged successfully.")
   }
   
   
@@ -48,11 +48,11 @@ fit.data.binary.CO <- function(
     IT_summary <- summary(IT)
     IT_est <- summary(IT)$coefficients
     IT_vcov <- vcov(IT)
-    IT_coef <- IT_summary$coefficients["Treatment1",]
+    IT_coef <- IT_summary$coefficients["Treatment",]
     
     ### Obtain RVE for estimated trt effects
     ITRVE <- vcovCR(IT, type= rve_type)
-    ITRVE_trt <- sqrt(ITRVE["Treatment1", "Treatment1"])
+    ITRVE_trt <- sqrt(ITRVE["Treatment", "Treatment"])
     
     ### Construct CI depending on SS correction
     if (ss_correct == T){
@@ -61,7 +61,7 @@ fit.data.binary.CO <- function(
       ITCI_RVE <- cal_confint_t(pe = IT_coef[1], df = df, se = ITRVE_trt)
     } else {
       ITCI <- c(IT_coef[1] - 1.96*IT_coef[2], IT_coef[1] + 1.96*IT_coef[2])
-      ITCI_RVE <- c(IT_coef[1] - 1.96*RVE_trt, IT_coef[1] + 1.96*ITRVE_trt)
+      ITCI_RVE <- c(IT_coef[1] - 1.96*ITRVE_trt, IT_coef[1] + 1.96*ITRVE_trt)
     }
   }
   
@@ -82,21 +82,21 @@ fit.data.binary.CO <- function(
                           family = "binomial", data = data), silent = TRUE)
       if(check_convergence(model3)[1] == F) {
         ETIconverge <- 0
-        message("All models failed to converge.")
+        message("ETI All models failed to converge.")
       } else {
         ETI <- model3
         ETIconverge <- 3
-        message("model3 converged successfully.")
+        message("ETI model3 converged successfully.")
       }
     } else {
       ETI <- model2
       ETIconverge <- 2
-      message("model2 converged successfully.")
+      message("ETI model2 converged successfully.")
     }
   } else {
     ETI <- model1
     ETIconverge <- 1
-    message("model1 converged successfully.")
+    message("ETI model1 converged successfully.")
   }
   
   if(ETIconverge == 0){
@@ -143,7 +143,7 @@ fit.data.binary.CO <- function(
   # Check if model1 converged
   if (check_convergence(model1)[1] == F) {
     # Fit the next model if model1 failed to converge
-    model2 <- try(glmer(Outcome ~  Period + Treatment + (0 + Treatment|Exposurer) + (1|Cluster) + (1|Cluster:Period), 
+    model2 <- try(glmer(Outcome ~  Period + Treatment + (0 + Treatment|Exposure) + (1|Cluster) + (1|Cluster:Period), 
                         family = "binomial", data = data), silent = TRUE)
     
     # Check if model2 also failed to converge
@@ -152,21 +152,21 @@ fit.data.binary.CO <- function(
                           family = "binomial", data = data), silent = TRUE)
       if(check_convergence(model3)[1] == F) {
         NCSconverge <- 0
-        message("All models failed to converge.")
+        message("TEH All models failed to converge.")
       } else {
         TEH <- model3
         TEHconverge <- 3
-        message("model3 converged successfully.")
+        message("TEH model3 converged successfully.")
       }
     } else {
       TEH <- model2
       TEHconverge <- 2
-      message("model2 converged successfully.")
+      message("TEH model2 converged successfully.")
     }
   } else {
     TEH <- model1
     TEHconverge <- 1
-    message("model1 converged successfully.")
+    message("TEH model1 converged successfully.")
   }
   
   #TEH <- glmer(Outcome ~  Period + Treatment + (Exposure|Cluster) + (1|Cluster:Period), 
@@ -177,11 +177,11 @@ fit.data.binary.CO <- function(
     TEH_summary <- summary(TEH)
     TEH_est <- TEH_summary$coefficients
     TEH_vcov <- vcov(TEH)
-    TEH_coef <- TEH_summary$coefficients["Treatment1",]
+    TEH_coef <- TEH_summary$coefficients["Treatment",]
     
     ### Obtain RVE for estimated trt effects
     #TEHRVE <- vcovCR(TEH, type= rve_type)
-    #TEHRVE_trt <- sqrt(TEHRVE["Treatment1", "Treatment1"])
+    #TEHRVE_trt <- sqrt(TEHRVE["Treatment", "Treatment"])
     if (ss_correct == T){
       df <- TEH_summary$ngrps - 2
       TEHCI <- cal_confint_t(pe = TEH_coef[1], df = df, se = TEH_coef[2])
@@ -196,11 +196,11 @@ fit.data.binary.CO <- function(
   ## Cubic spline
   data$Exposure <- as.numeric(as.character(data$Exposure))
   data$Period <- as.numeric(as.character(data$Period))
-  J <- length(unique(data$Exposure))
+  J <- length(unique(data$Period))
   nnode <-  ceiling((J)/2)
-  ns_basis <- ns(c(0:(J-1)), knots = (1:(nnode-2))*(J-1)/(nnode - 1))
+  ns_basis <- ns(c(0:(J-1)), knots = (1:(nnode-1))*(J-1)/(nnode))
   
-  for (i in 1:(nnode-1)) {
+  for (i in 1:(nnode)) {
     new_vector <- ns_basis[data$Exposure+1,i]  # Example: random numbers
     data[[paste0("b", i)]] <- new_vector
   }
@@ -211,7 +211,7 @@ fit.data.binary.CO <- function(
   #data$b4 <- ns_basis[data$Exposure+1,4]
   #formula <- Outcome ~ Period + b1 + b2 + b3 + b4 + (1|Cluster)
   
-  b_vars <- paste0("b", 1:(nnode-1))
+  b_vars <- paste0("b", 1:(nnode))
   formula1 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), "+ (1|Cluster) + (1|Cluster:Period) + (1|id_individual) "))
   formula2 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), "+ (1|Cluster) + (1|Cluster:Period)"))
   formula3 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), "+ (1|Cluster)"))
@@ -231,21 +231,21 @@ fit.data.binary.CO <- function(
                           family = "binomial", data = data), silent = TRUE)
       if(check_convergence(model3)[1] == F) {
         NCSconverge <- 0
-        message("All models failed to converge.")
+        message("NCS All models failed to converge.")
       } else {
         model <- model3
         NCSconverge <- 3
-        message("model3 converged successfully.")
+        message("NCS model3 converged successfully.")
       }
     } else {
       model <- model2
       NCSconverge <- 2
-      message("model2 converged successfully.")
+      message("NCS model2 converged successfully.")
     }
   } else {
     model <- model1
     NCSconverge <- 1
-    message("model1 converged successfully.")
+    message("NCS model1 converged successfully.")
   }
   
   
@@ -265,9 +265,9 @@ fit.data.binary.CO <- function(
     #RVE
     NCSRVE <- vcovCR(model, type= rve_type)
     NCSRVE_b_hat <- NCSRVE[indices,indices]
-    B <- matrix(NA, nrow=(J-1), ncol = nnode-1)
+    B <- matrix(NA, nrow=(J-1), ncol = nnode)
     for (i in 1:(J-1)) {
-      for (j in 1:(nnode-1)) {
+      for (j in 1:(nnode)) {
         B[i,j] <- ns_basis[i+1,j]
       }
     }
@@ -309,16 +309,15 @@ fit.data.binary.CO <- function(
   results[["NCS"]]$est <- theta_l_hat
   results[["NCS"]]$vcov <- sigma_l_hat
   results[["NCS"]]$rve <- NCSRVE
-  results[["NCS"]]$summary <- data.frame(TATE = NCS_ATAE, SD = SE_NCS_ATAE, 
+  results[["NCS"]]$summary <- data.frame(TATE = NCS_ATAE, SD = NCS_se, 
                                          RVE = NCSRVE_trt, CI_L = NCSCI[1], CI_U = NCSCI[2], 
                                          CI_RVE_L = NCSCI_RVE[1], CI_RVE_U = NCSCI_RVE[2])
   
   results[["TEH"]]$est <- TEH_est
-  results[["TEH"]]$vcov <- TEH_vcov
-  results[["TEH"]]$rve <- TEHRVE
+  #results[["TEH"]]$vcov <- TEH_vcov
+  #results[["TEH"]]$rve <- TEHRVE
   results[["TEH"]]$summary <- data.frame(TATE = TEH_coef[1], SD = TEH_coef[2], 
-                                         RVE = TEHRVE_trt, CI_L = TEHCI[1], CI_U = TEHCI[2], 
-                                         CI_RVE_L = TEHCI_RVE[1], CI_RVE_U = TEHCI_RVE[2])
+                                         CI_L = TEHCI[1], CI_U = TEHCI[2])
   
   results[["convergence"]] <- data.frame(IT=ITconverge, ETI=ETIconverge, TEH=TEHconverge, NCS=NCSconverge)
   

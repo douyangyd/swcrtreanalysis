@@ -41,11 +41,11 @@ fit.data.poisson.CS <- function(
       IT_summary <- summary(IT)
       IT_est <- summary(IT)$coefficients
       IT_vcov <- vcov(IT)
-      IT_coef <- IT_summary$coefficients["Treatment1",]
+      IT_coef <- IT_summary$coefficients["Treatment",]
       
       ### Obtain RVE for estimated trt effects
       ITRVE <- vcovCR(IT, type= rve_type)
-      ITRVE_trt <- sqrt(ITRVE["Treatment1", "Treatment1"])
+      ITRVE_trt <- sqrt(ITRVE["Treatment", "Treatment"])
       
       ### Construct CI depending on SS correction
       if (ss_correct == T){
@@ -54,7 +54,7 @@ fit.data.poisson.CS <- function(
         ITCI_RVE <- cal_confint_t(pe = IT_coef[1], df = df, se = ITRVE_trt)
       } else {
         ITCI <- c(IT_coef[1] - 1.96*IT_coef[2], IT_coef[1] + 1.96*IT_coef[2])
-        ITCI_RVE <- c(IT_coef[1] - 1.96*RVE_trt, IT_coef[1] + 1.96*ITRVE_trt)
+        ITCI_RVE <- c(IT_coef[1] - 1.96*ITRVE_trt, IT_coef[1] + 1.96*ITRVE_trt)
       }
     }
     
@@ -152,11 +152,11 @@ fit.data.poisson.CS <- function(
       TEH_summary <- summary(TEH)
       TEH_est <- TEH_summary$coefficients
       TEH_vcov <- vcov(TEH)
-      TEH_coef <- TEH_summary$coefficients["Treatment1",]
+      TEH_coef <- TEH_summary$coefficients["Treatment",]
       
       ### Obtain RVE for estimated trt effects
       #TEHRVE <- vcovCR(TEH, type= rve_type)
-      #TEHRVE_trt <- sqrt(TEHRVE["Treatment1", "Treatment1"])
+      #TEHRVE_trt <- sqrt(TEHRVE["Treatment", "Treatment"])
       if (ss_correct == T){
         df <- TEH_summary$ngrps - 2
         TEHCI <- cal_confint_t(pe = TEH_coef[1], df = df, se = TEH_coef[2])
@@ -171,11 +171,11 @@ fit.data.poisson.CS <- function(
     ## Cubic spline
     data$Exposure <- as.numeric(as.character(data$Exposure))
     data$Period <- as.numeric(as.character(data$Period))
-    J <- length(unique(data$Exposure))
+    J <- length(unique(data$Period))
     nnode <-  ceiling((J)/2)
-    ns_basis <- ns(c(0:(J-1)), knots = (1:(nnode-2))*(J-1)/(nnode - 1))
+    ns_basis <- ns(c(0:(J-1)), knots = (1:(nnode-1))*(J-1)/(nnode))
     
-    for (i in 1:(nnode-1)) {
+    for (i in 1:(nnode)) {
       new_vector <- ns_basis[data$Exposure+1,i]  # Example: random numbers
       data[[paste0("b", i)]] <- new_vector
     }
@@ -186,7 +186,7 @@ fit.data.poisson.CS <- function(
     #data$b4 <- ns_basis[data$Exposure+1,4]
     #formula <- Outcome ~ Period + b1 + b2 + b3 + b4 + (1|Cluster)
     
-    b_vars <- paste0("b", 1:(nnode-1))
+    b_vars <- paste0("b", 1:(nnode))
     formula1 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), "+ (1|Cluster) + (1|Cluster:Period) "))
     formula2 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), "+ (1|Cluster) "))
     
@@ -228,9 +228,9 @@ fit.data.poisson.CS <- function(
       #RVE
       NCSRVE <- vcovCR(model, type= rve_type)
       NCSRVE_b_hat <- NCSRVE[indices,indices]
-      B <- matrix(NA, nrow=(J-1), ncol = nnode-1)
+      B <- matrix(NA, nrow=(J-1), ncol = nnode)
       for (i in 1:(J-1)) {
-        for (j in 1:(nnode-1)) {
+        for (j in 1:(nnode)) {
           B[i,j] <- ns_basis[i+1,j]
         }
       }
@@ -289,11 +289,11 @@ fit.data.poisson.CS <- function(
       IT_summary <- summary(IT)
       IT_est <- summary(IT)$coefficients
       IT_vcov <- vcov(IT)
-      IT_coef <- IT_summary$coefficients["Treatment1",]
+      IT_coef <- IT_summary$coefficients["Treatment",]
       
       ### Obtain RVE for estimated trt effects
       ITRVE <- vcovCR(IT, type= rve_type)
-      ITRVE_trt <- sqrt(ITRVE["Treatment1", "Treatment1"])
+      ITRVE_trt <- sqrt(ITRVE["Treatment", "Treatment"])
       
       ### Construct CI depending on SS correction
       if (ss_correct == T){
@@ -400,11 +400,11 @@ fit.data.poisson.CS <- function(
       TEH_summary <- summary(TEH)
       TEH_est <- TEH_summary$coefficients
       TEH_vcov <- vcov(TEH)
-      TEH_coef <- TEH_summary$coefficients["Treatment1",]
+      TEH_coef <- TEH_summary$coefficients["Treatment",]
       
       ### Obtain RVE for estimated trt effects
       #TEHRVE <- vcovCR(TEH, type= rve_type)
-      #TEHRVE_trt <- sqrt(TEHRVE["Treatment1", "Treatment1"])
+      #TEHRVE_trt <- sqrt(TEHRVE["Treatment", "Treatment"])
       if (ss_correct == T){
         df <- TEH_summary$ngrps - 2
         TEHCI <- cal_confint_t(pe = TEH_coef[1], df = df, se = TEH_coef[2])
@@ -421,9 +421,9 @@ fit.data.poisson.CS <- function(
     data$Period <- as.numeric(as.character(data$Period))
     J <- length(unique(data$Exposure))
     nnode <-  ceiling((J)/2)
-    ns_basis <- ns(c(0:(J-1)), knots = (1:(nnode-2))*(J-1)/(nnode - 1))
+    ns_basis <- ns(c(0:(J-1)), knots = (1:(nnode-1))*(J-1)/(nnode - 1))
     
-    for (i in 1:(nnode-1)) {
+    for (i in 1:(nnode)) {
       new_vector <- ns_basis[data$Exposure+1,i]  # Example: random numbers
       data[[paste0("b", i)]] <- new_vector
     }
@@ -434,7 +434,7 @@ fit.data.poisson.CS <- function(
     #data$b4 <- ns_basis[data$Exposure+1,4]
     #formula <- Outcome ~ Period + b1 + b2 + b3 + b4 + (1|Cluster)
     
-    b_vars <- paste0("b", 1:(nnode-1))
+    b_vars <- paste0("b", 1:(nnode))
     formula1 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), "+ (1|Cluster) + (1|Cluster:Period) + offset(log(off)) "))
     formula2 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), "+ (1|Cluster) + offset(log(off)) "))
     
@@ -476,9 +476,9 @@ fit.data.poisson.CS <- function(
       #RVE
       NCSRVE <- vcovCR(model, type= rve_type)
       NCSRVE_b_hat <- NCSRVE[indices,indices]
-      B <- matrix(NA, nrow=(J-1), ncol = nnode-1)
+      B <- matrix(NA, nrow=(J-1), ncol = nnode)
       for (i in 1:(J-1)) {
-        for (j in 1:(nnode-1)) {
+        for (j in 1:(nnode)) {
           B[i,j] <- ns_basis[i+1,j]
         }
       }
@@ -530,9 +530,8 @@ fit.data.poisson.CS <- function(
   results[["TEH"]]$est <- TEH_est
   #results[["TEH"]]$vcov <- TEH_vcov
   #results[["TEH"]]$rve <- TEHRVE
-  #results[["TEH"]]$summary <- data.frame(TATE = TEH_coef[1], SD = TEH_coef[2], 
-  #                                       RVE = TEHRVE_trt, CI_L = TEHCI[1], CI_U = TEHCI[2], 
-  #                                       CI_RVE_L = TEHCI_RVE[1], CI_RVE_U = TEHCI_RVE[2])
+  results[["TEH"]]$summary <- data.frame(TATE = TEH_coef[1], SD = TEH_coef[2], 
+                                         CI_L = TEHCI[1], CI_U = TEHCI[2])
   
   results[["convergence"]] <- data.frame(IT=ITconverge, ETI=ETIconverge, TEH=TEHconverge, NCS=NCSconverge)
   
