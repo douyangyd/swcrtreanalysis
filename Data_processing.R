@@ -1,23 +1,6 @@
 # Data Processing
 process_data <- function(data) {
 
-### Identify outcome columns (assuming outcome columns are named 'outcome1', 'outcome2', etc.)
-outcome_columns <- grep("out", names(data), value = TRUE)
-
-### number of binary outcome
-binary_columns <-grep("bin", names(data), value=TRUE)
-### number of continuous outcome
-gaussian_columns <-grep("con", names(data), value=TRUE)
-### number of count outcome
-poisson_columns <-grep("poiss", names(data), value=TRUE)
-
-
-### Identify offset columns (only for count outcomes, for other outcomes, this is always 0)
-offset_columns <- grep("off", names(data), value = TRUE)
-
-### Identify indiivudal ID columns  
-ind_columns <- grep("id_individual", names(data), value = TRUE)
-
 ### Create a list to hold copies of the dataset
 dataset_copies <- list()
 
@@ -51,3 +34,20 @@ data <- data.format(dataset_copies)
 return(data)
 
 }
+### Identify outcome columns (assuming outcome columns are named 'outcome1', 'outcome2', etc.)
+outcome_columns <- grep("out", names(data), value = TRUE)
+
+### number of binary outcome
+binary_columns <-grep("bin", names(data), value=TRUE)
+### number of continuous outcome
+gaussian_columns <-grep("con", names(data), value=TRUE)
+### number of count outcome
+poisson_columns <-grep("poiss", names(data), value=TRUE)
+
+
+### Identify offset columns (only for count outcomes, for other outcomes, this is always 0)
+offset_columns <- grep("off", names(data), value = TRUE)
+
+### Identify indiivudal ID columns  
+ind_columns <- grep("id_individual", names(data), value = TRUE)
+data <- process_data(data)
