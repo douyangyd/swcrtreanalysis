@@ -36,7 +36,7 @@ fit.data.gaussian.CO <- function(
     }
   } else {
     IT <- model1
-    ITconverge <- 0
+    ITconverge <- 1
     message("IT model1 converged successfully.")
   }
   
