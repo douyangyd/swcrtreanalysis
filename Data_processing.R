@@ -23,7 +23,7 @@ data.format <- function(dataset_copies){
   data <- list()
   for (i in 1:length(dataset_copies)){
     data[[i]] <- dplyr::rename(dataset_copies[[i]], Outcome = outcome, Cluster = id_cluster, Treatment = trt, Period = time, Exposure = time_on_trt)
-    data[[i]][,c("Cluster", "Treatment", "Period", "Exposure")] <- lapply(data[[i]][,c("Cluster", "Treatment", "Period", "Exposure")], factor)
+    data[[i]][,c("Cluster", "Period")] <- lapply(data[[i]][,c("Cluster", "Period")], factor)
   }
   return(data)
 }
