@@ -22,9 +22,7 @@ for (pkg in c(cfg$pkgs)) {
 
 # Source necessary files
 setwd(cfg$wd)
-files <- c("Data_processing.R", "fit_binary_CS.R", "helpers.R",
-           "fit_binary_CO.R", "fit_gaussian_CS.R", "fit_gaussian_CO.R",
-           "fit_poisson_CS.R", "fit_poisson_CO.R")
+files <- c("Data_processing.R", "data_analysis.R", "helpers.R")
 for (file in files) { do.call("source", list(file)) }
 source("G:/Shared drives/Stepped Wedge Data Files/Software/Robust Variance/vcovCRglmerMod.R") # Temporary
 
@@ -37,11 +35,12 @@ for (i in cfg$ind) {
   head(data)
   data <- process_data(data)
   
-  test1 <- fit.data.poisson.CS(
+  test1 <- fit(
     data = data[[1]],
+    family = "gaussian", 
+    design = "cs",
     rve_type = "classic",
-    ss_correct = T,
-    offset = NULL
+    ss_correct = T
   )
   
 }
