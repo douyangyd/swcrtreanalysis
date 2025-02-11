@@ -6,6 +6,11 @@ summary_table <- function(results){
     "ci",
     "rve",
     "rveci",
+    "lte",
+    "lte_se",
+    "lte_rve",
+    "lteci",
+    "lteci_rve",
     "converged",
     "lme4_converged",
     "messages",
@@ -89,14 +94,15 @@ summary_table <- function(results){
   }
   
   rownames(table_data) <- c("Estimate",
-                 "Standard Error (SE)",
-                 "95% Confidence Interval",
-                 "Robust Standard Error",
-                 "95% CI with Robust SE",
-                 "Convergence",
-                 "lme4 Convergence",
-                 "Model Message",
-                 "Random Effect Estimates")
+                            "Long-term treatment effect",
+                            "Standard Error (SE)",
+                            "95% Confidence Interval",
+                            "Robust Standard Error",
+                            "95% CI with Robust SE",
+                            "Convergence",
+                            "lme4 Convergence",
+                            "Model Message",
+                            "Random Effect Estimates")
   
   caption_text <- if (ncol(table_data) == 8) {
     "Model 1 Random effect: Cluster and Cluster by time. Model 2 Random effect: Cluster only"

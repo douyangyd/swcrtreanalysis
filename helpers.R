@@ -62,6 +62,11 @@ get_coef <- function(model, rve_type, ss_correct){
     rve = model_rve,
     ci = modelci,
     rveci = modelci_rve,
+    lte = model_est,
+    lte_se = model_se,
+    lte_rve = model_rve,
+    lteci = modelci,
+    lterveci = modelci_rve,
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
@@ -75,6 +80,8 @@ get_eticoef <- function(model, rve_type, ss_correct){
   model_reest <-model_summary$varcor
   indices <- grep("Exposure", rownames(model_summary$coefficients))
   index_max <- length(indices)
+  lte <- model_summary$coefficients[indices,][index_max,1]
+  lte_se <- model_summary$coefficients[indices,][index_max,2]
   
   
   coeffs <- model_summary$coefficients[,1][indices] # column 1 contains the estimates
@@ -84,6 +91,7 @@ get_eticoef <- function(model, rve_type, ss_correct){
   model_est <- (A %*% coeffs)[1]
   model_se <- (sqrt(A %*% sigma.matrix %*% t(A)))[1,1]
   model_rve <- vcovCR(model, type = rve_type)
+  lte_rve <- model_rve[indices,indices][index_max, index_max]
   sigmarve.matrix <- model_rve[indices,indices]
   model_rve <- (sqrt(A %*% sigmarve.matrix %*% t(A)))[1,1]
   
@@ -93,9 +101,13 @@ get_eticoef <- function(model, rve_type, ss_correct){
     dof <- model_summary$ngrps[["Cluster"]] - 2
     modelci <- cal_confint_t(pe = model_est, df = dof, se = model_se)
     modelci_rve <- cal_confint_t(pe = model_est, df = dof, se = model_rve)
+    lteci <- cal_confint_t(pe = lte, df = dof, se = lte_se)
+    lteci_rve <- cal_confint_t(pe = lte, df = dof, se = lte_rve)
   } else {
     modelci <- model_est + c(-1.96,1.96) * model_se
     modelci_rve <- model_est + c(-1.96,1.96) * model_rve
+    lteci <- lte + c(-1.96,1.96) * lte_se
+    lteci_rve <- lte + c(-1.96,1.96) * lte_rve
   }
   list <- list(
     model = model,
@@ -105,6 +117,11 @@ get_eticoef <- function(model, rve_type, ss_correct){
     rve = model_rve,
     ci = modelci,
     rveci = modelci_rve,
+    lte = lte,
+    lte_se = lte_se,
+    lte_rve = lte_rve,
+    lteci = lteci,
+    lterveci = lteci_rve,
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
@@ -132,12 +149,18 @@ get_tehcoef <- function(model, ss_correct){
   }
   list <- list(
     model = model,
+    lte = "NA",
     reest = format_reest(model_reest),
     est = model_est,
     se = model_se,
     rve = "NA",
     ci = modelci,
     ci_rve = "NA",
+    lte = "NA",
+    lte_se = "NA",
+    lte_rve = "NA",
+    lteci = "NA",
+    lterveci = "NA",
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
@@ -194,12 +217,18 @@ get_ncscoef <- function(model, data, rve_type, ss_correct, ns_basis, J, nnode){
   
   list <- list(
     model = model,
+    lte = "NA",
     reest = format_reest(model_reest),
     est = model_est,
     se = model_se,
     rve = model_rve,
     ci = modelci,
     rveci = modelci_rve,
+    lte = "NA",
+    lte_se = "NA",
+    lte_rve = "NA",
+    lteci = "NA",
+    lterveci = "NA",
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
