@@ -1,7 +1,7 @@
 fit <- function(
     data,                  # standardized dataset
     family,                #
-    rve_type,              # RVE type: MD was recommended 
+    rse_type,              # rse type: MD was recommended 
     ss_correct,            # Whether small sample correction will be applied: T/F
     offset = FALSE,
     design                 # cs = cross-section; co = cohort 
@@ -42,13 +42,13 @@ fit <- function(
     if(is.null(model1) == T){
       itm1_result <- NULL
     } else {
-      itm1_result <- get_coef(model1, rve_type, ss_correct)
+      itm1_result <- get_coef(model1, rse_type, ss_correct)
     }
     
     if(is.null(model1) == T){
       itm2_result <- NULL
     } else {
-      itm2_result <- get_coef(model2, rve_type, ss_correct)
+      itm2_result <- get_coef(model2, rse_type, ss_correct)
     }
   } 
   if (design == "co"){
@@ -64,19 +64,19 @@ fit <- function(
     if(is.null(model1) == T){
       itm1_result <- NULL
     } else {
-      itm1_result <- get_coef(model1, rve_type, ss_correct)
+      itm1_result <- get_coef(model1, rse_type, ss_correct)
     }
     
     if(is.null(model2) == T){
       itm2_result <- NULL
     } else {
-      itm2_result <- get_coef(model2, rve_type, ss_correct)
+      itm2_result <- get_coef(model2, rse_type, ss_correct)
     }
     
     if(is.null(model3) == T){
       itm3_result <- NULL
     } else {
-      itm3_result <- get_coef(model3, rve_type, ss_correct)
+      itm3_result <- get_coef(model3, rse_type, ss_correct)
     }
   }
   
@@ -100,13 +100,13 @@ fit <- function(
     if(is.null(model1) == T){
       etim1_result <- NULL
     } else {
-      etim1_result <- get_eticoef(model1, rve_type, ss_correct)
+      etim1_result <- get_eticoef(model1, rse_type, ss_correct)
     }
     
     if(is.null(model1) == T){
       etim2_result <- NULL
     } else {
-      etim2_result <- get_eticoef(model2, rve_type, ss_correct)
+      etim2_result <- get_eticoef(model2, rse_type, ss_correct)
     }
   }
   if (design == "co"){
@@ -122,19 +122,19 @@ fit <- function(
     if(is.null(model1) == T){
       etim1_result <- NULL
     } else {
-      etim1_result <- get_eticoef(model1, rve_type, ss_correct)
+      etim1_result <- get_eticoef(model1, rse_type, ss_correct)
     }
     
     if(is.null(model2) == T){
       etim2_result <- NULL
     } else {
-      etim2_result <- get_eticoef(model2, rve_type, ss_correct)
+      etim2_result <- get_eticoef(model2, rse_type, ss_correct)
     }
     
     if(is.null(model3) == T){
       etim3_result <- NULL
     } else {
-      etim3_result <- get_eticoef(model3, rve_type, ss_correct)
+      etim3_result <- get_eticoef(model3, rse_type, ss_correct)
     }
   }
   
@@ -233,13 +233,13 @@ fit <- function(
     if(is.null(model1) == T){
       ncsm1_result <- NULL
     } else {
-      ncsm1_result <- get_ncscoef(model1, data, rve_type, ss_correct, ns_basis, J, nnode)
+      ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct, ns_basis, J, nnode)
     }
     
     if(is.null(model1) == T){
       ncsm2_result <- NULL
     } else {
-      ncsm2_result <- get_ncscoef(model2, data, rve_type, ss_correct, ns_basis, J, nnode)
+      ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct, ns_basis, J, nnode)
     }
   }
   if (design == "co"){
@@ -255,27 +255,27 @@ fit <- function(
     if(is.null(model1) == T){
       ncsm1_result <- NULL
     } else {
-      ncsm1_result <- get_ncscoef(model1, data, rve_type, ss_correct, ns_basis, J, nnode)
+      ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct, ns_basis, J, nnode)
     }
     
     if(is.null(model2) == T){
       ncsm2_result <- NULL
     } else {
-      ncsm2_result <- get_ncscoef(model2, data, rve_type, ss_correct, ns_basis, J, nnode)
+      ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct, ns_basis, J, nnode)
     }
     
     if(is.null(model3) == T){
       ncsm3_result <- NULL
     } else {
-      ncsm3_result <- get_ncscoef(model3, data, rve_type, ss_correct, ns_basis, J, nnode)
+      ncsm3_result <- get_ncscoef(model3, data, rse_type, ss_correct, ns_basis, J, nnode)
     }
   }
   if (design == "cs"){
-    results <- list(itm1=itm1_result, itm2=itm2_result, etim1 = etim1_result, etim2 = etim2_result, 
+    results <- list(family = family, itm1=itm1_result, itm2=itm2_result, etim1 = etim1_result, etim2 = etim2_result, 
                     tehm1 = tehm1_result, tehm2 = tehm2_result, ncsm1 = ncsm1_result, ncsm2 = ncsm2_result)
   }
   if (design == "co"){
-    results <- list(itm1=itm1_result, itm2=itm2_result, itm3=itm3_result, 
+    results <- list(family = family, itm1=itm1_result, itm2=itm2_result, itm3=itm3_result, 
                     etim1 = etim1_result, etim2 = etim2_result, etim3 = etim3_result, 
                     tehm1 = tehm1_result, tehm2 = tehm2_result, tehm3 = tehm3_result,
                     ncsm1 = ncsm1_result, ncsm2 = ncsm2_result, ncsm3 = ncsm3_result)
@@ -286,4 +286,4 @@ fit <- function(
   
 
 
-#testx <- fit(data = data, family = "gaussian", rve_type = "CR0", ss_correct=T, design = "co")
+#testx <- fit(data = data, family = "gaussian", rse_type = "CR0", ss_correct=T, design = "co")

@@ -51,3 +51,11 @@ offset_columns <- grep("off", names(data), value = TRUE)
 ### Identify indiivudal ID columns  
 ind_columns <- grep("id_individual", names(data), value = TRUE)
 data <- process_data(data)
+
+family <- sapply(outcome_columns, function(x) {
+  if (grepl("poiss", x)) return("poisson")
+  if (grepl("bin", x)) return("binomial")
+  if (grepl("con", x)) return("gaussian")
+})
+
+

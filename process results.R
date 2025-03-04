@@ -4,20 +4,20 @@ summary_table <- function(results){
     "est",
     "se",
     "ci",
-    "rve",
-    "rveci",
+    "rse",
+    "rseci",
     "lte",
     "lte_se",
-    "lte_rve",
     "lteci",
-    "lteci_rve",
+    "lte_rse",
+    "lterseci",
     "converged",
     "lme4_converged",
     "messages",
     "reest"
   )
   
-  if (length(results) == 8){
+  if (length(results) == 9){
     table_data <- data.frame(
       Metric = rows,
       itm1 = NA,
@@ -64,12 +64,12 @@ summary_table <- function(results){
   }
   
   # Populate the table by extracting and formatting values from the lists
-  for (col in names(results)) {
+  for (col in names(results)[-1]) {
     table_data[[col]] <- sapply(rows, function(row) format_value(results[[col]][[row]]))
   }
   table_data <- table_data[,-1]
   
-  if (length(results) == 8){
+  if (length(results) == 9){
   colnames(table_data) <- c("Immediate Time (IT) Model 1", 
                             "Immediate Time (IT) Model 2",
                             "Exposure Time Indicator (ETI) Model 1", 
@@ -94,11 +94,15 @@ summary_table <- function(results){
   }
   
   rownames(table_data) <- c("Estimate",
-                            "Long-term treatment effect",
                             "Standard Error (SE)",
                             "95% Confidence Interval",
                             "Robust Standard Error",
                             "95% CI with Robust SE",
+                            "Long-term treatment effect (LTE)",
+                            "LTE SE",
+                            "LTE 95% Confidence Interval",
+                            "LTE Robust SE",
+                            "LTE 95% CI with Robust SE",
                             "Convergence",
                             "lme4 Convergence",
                             "Model Message",
@@ -110,6 +114,7 @@ summary_table <- function(results){
     "Model 1 Random effect: Cluster, Cluster by time and indiviudal. Model 2 Random effect: Cluster, Cluster by time. Model 3 Random effect: Cluster only"
   }
   # Render as an interactive DT table
+  
   
   datatable(table_data, 
             rownames = TRUE, 

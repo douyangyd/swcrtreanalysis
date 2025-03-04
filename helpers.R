@@ -35,38 +35,38 @@ format_reest <- function(reest){
 
 
 F## Function to process it models
-get_coef <- function(model, rve_type, ss_correct){
+get_coef <- function(model, rse_type, ss_correct){
   model_summary <- summary(model)
   model_vcov <- vcov(model)
   model_reest <-model_summary$varcor
   model_est <- model_summary$coefficients["Treatment",1]
   model_se <- model_summary$coefficients["Treatment",2]
   
-  model_rve <- vcovCR(model, type = rve_type)
-  model_rve <- sqrt(model_rve["Treatment", "Treatment"])
+  model_rse <- vcovCR(model, type = rse_type)
+  model_rse <- sqrt(model_rse["Treatment", "Treatment"])
   
   ### Construct CI depending on SS correction
   if (ss_correct == T){
     dof <- model_summary$ngrps[["Cluster"]] - 2
     modelci <- cal_confint_t(pe = model_est, df = dof, se = model_se)
-    modelci_rve <- cal_confint_t(pe = model_est, df = dof, se = model_rve)
+    modelci_rse <- cal_confint_t(pe = model_est, df = dof, se = model_rse)
   } else {
     modelci <- model_est + c(-1.96,1.96) * model_se
-    modelci_rve <- model_est + c(-1.96,1.96) * model_rve
+    modelci_rse <- model_est + c(-1.96,1.96) * model_rse
   }
   list <- list(
     model = model,
     reest = format_reest(model_reest),
     est = model_est,
     se = model_se,
-    rve = model_rve,
+    rse = model_rse,
     ci = modelci,
-    rveci = modelci_rve,
+    rseci = modelci_rse,
     lte = model_est,
     lte_se = model_se,
-    lte_rve = model_rve,
+    lte_rse = model_rse,
     lteci = modelci,
-    lterveci = modelci_rve,
+    lterseci = modelci_rse,
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
@@ -75,7 +75,7 @@ get_coef <- function(model, rve_type, ss_correct){
 }
 
 ## Function to process eti models
-get_eticoef <- function(model, rve_type, ss_correct){
+get_eticoef <- function(model, rse_type, ss_correct){
   model_summary <- summary(model)
   model_reest <-model_summary$varcor
   indices <- grep("Exposure", rownames(model_summary$coefficients))
@@ -90,38 +90,38 @@ get_eticoef <- function(model, rve_type, ss_correct){
   A <- matrix(rep(1/index_max), index_max, nrow=1)
   model_est <- (A %*% coeffs)[1]
   model_se <- (sqrt(A %*% sigma.matrix %*% t(A)))[1,1]
-  model_rve <- vcovCR(model, type = rve_type)
-  lte_rve <- model_rve[indices,indices][index_max, index_max]
-  sigmarve.matrix <- model_rve[indices,indices]
-  model_rve <- (sqrt(A %*% sigmarve.matrix %*% t(A)))[1,1]
+  model_rse <- vcovCR(model, type = rse_type)
+  lte_rse <- model_rse[indices,indices][index_max, index_max]
+  sigmarse.matrix <- model_rse[indices,indices]
+  model_rse <- (sqrt(A %*% sigmarse.matrix %*% t(A)))[1,1]
   
   
   ### obtain CI depending on SS correction
   if (ss_correct == T){
     dof <- model_summary$ngrps[["Cluster"]] - 2
     modelci <- cal_confint_t(pe = model_est, df = dof, se = model_se)
-    modelci_rve <- cal_confint_t(pe = model_est, df = dof, se = model_rve)
+    modelci_rse <- cal_confint_t(pe = model_est, df = dof, se = model_rse)
     lteci <- cal_confint_t(pe = lte, df = dof, se = lte_se)
-    lteci_rve <- cal_confint_t(pe = lte, df = dof, se = lte_rve)
+    lteci_rse <- cal_confint_t(pe = lte, df = dof, se = lte_rse)
   } else {
     modelci <- model_est + c(-1.96,1.96) * model_se
-    modelci_rve <- model_est + c(-1.96,1.96) * model_rve
+    modelci_rse <- model_est + c(-1.96,1.96) * model_rse
     lteci <- lte + c(-1.96,1.96) * lte_se
-    lteci_rve <- lte + c(-1.96,1.96) * lte_rve
+    lteci_rse <- lte + c(-1.96,1.96) * lte_rse
   }
   list <- list(
     model = model,
     reest = format_reest(model_reest),
     est = model_est,
     se = model_se,
-    rve = model_rve,
+    rse = model_rse,
     ci = modelci,
-    rveci = modelci_rve,
+    rseci = modelci_rse,
     lte = lte,
     lte_se = lte_se,
-    lte_rve = lte_rve,
+    lte_rse = lte_rse,
     lteci = lteci,
-    lterveci = lteci_rve,
+    lterseci = lteci_rse,
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
@@ -138,9 +138,9 @@ get_tehcoef <- function(model, ss_correct){
   model_est <- model_summary$coefficients["Treatment",1]
   model_se <- model_summary$coefficients["Treatment",2]
   
-  ### Obtain RVE for estimated trt effects
-  #modelRVE <- vcovCR(model, type= rve_type)
-  #modelRVE_trt <- sqrt(modelRVE["Treatment", "Treatment"])
+  ### Obtain rse for estimated trt effects
+  #modelrse <- vcovCR(model, type= rse_type)
+  #modelrse_trt <- sqrt(modelrse["Treatment", "Treatment"])
   if (ss_correct == T){
     dof <- model_summary$ngrps[["Cluster"]] - 2
     modelci <- cal_confint_t(pe = model_est, df = dof, se = model_se)
@@ -153,14 +153,14 @@ get_tehcoef <- function(model, ss_correct){
     reest = format_reest(model_reest),
     est = model_est,
     se = model_se,
-    rve = "NA",
+    rse = "NA",
     ci = modelci,
-    ci_rve = "NA",
+    ci_rse = "NA",
     lte = "NA",
     lte_se = "NA",
-    lte_rve = "NA",
+    lte_rse = "NA",
     lteci = "NA",
-    lterveci = "NA",
+    lterseci = "NA",
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
@@ -170,7 +170,7 @@ get_tehcoef <- function(model, ss_correct){
 
 
 ## Function to process ncs models
-get_ncscoef <- function(model, data, rve_type, ss_correct, ns_basis, J, nnode){
+get_ncscoef <- function(model, data, rse_type, ss_correct, ns_basis, J, nnode){
   model_summary <- summary(model)
   model_reest <- model_summary$varcor
   # Specify the indices corresponding to the spline terms
@@ -194,25 +194,25 @@ get_ncscoef <- function(model, data, rve_type, ss_correct, ns_basis, J, nnode){
   
   coeffs_b_new <- as.numeric(B %*% coeffs_b)
   sigma.matrix <- B %*% sigma.matrix_b %*% t(B)
-  model_rve <- vcovCR(model, type = rve_type)
-  sigmarve.matrix <- model_rve[indices,indices]
-  sigmarve.matrix <- B %*% sigmarve.matrix %*% t(B)
+  model_rse <- vcovCR(model, type = rse_type)
+  sigmarse.matrix <- model_rse[indices,indices]
+  sigmarse.matrix <- B %*% sigmarse.matrix %*% t(B)
   
   
   A <- matrix(rep(1/num_exp_timepoints, num_exp_timepoints), nrow=1)
   model_est <- (A %*% coeffs_b_new)[1]
   model_se <- (sqrt(A %*% sigma.matrix %*% t(A)))[1,1]
-  model_rve <- (sqrt(A %*% sigmarve.matrix %*% t(A)))[1,1]
+  model_rse <- (sqrt(A %*% sigmarse.matrix %*% t(A)))[1,1]
   
   
   ### obtain CI depending on SS correction
   if (ss_correct == T){
     dof <- model_summary$ngrps[["Cluster"]] - 2
     modelci <- cal_confint_t(pe = model_est, df = dof, se = model_se)
-    modelci_rve <- cal_confint_t(pe = model_est, df = dof, se = model_rve)
+    modelci_rse <- cal_confint_t(pe = model_est, df = dof, se = model_rse)
   } else {
     modelci <- model_est + c(-1.96,1.96) * model_se
-    modelci_rve <- model_est + c(-1.96,1.96) * model_rve
+    modelci_rse <- model_est + c(-1.96,1.96) * model_rse
   }
   
   list <- list(
@@ -221,14 +221,14 @@ get_ncscoef <- function(model, data, rve_type, ss_correct, ns_basis, J, nnode){
     reest = format_reest(model_reest),
     est = model_est,
     se = model_se,
-    rve = model_rve,
+    rse = model_rse,
     ci = modelci,
-    rveci = modelci_rve,
+    rseci = modelci_rse,
     lte = "NA",
     lte_se = "NA",
-    lte_rve = "NA",
+    lte_rse = "NA",
     lteci = "NA",
-    lterveci = "NA",
+    lterseci = "NA",
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
