@@ -36,11 +36,15 @@ for (i in cfg$ind) {
   dataname <- print(dir(cfg$path)[i])
   head(data)
   source("G:/Shared drives/Stepped Wedge Data Files/Software/Data Analysis/Data_processing.R") 
+  # number of outcomes in this dataset
   length(outcome_columns)
+  # type of outcomes for each outcome
   family
-  length(offset_columns)
+  # cs or co design
   design <- ifelse(length(ind_columns) == 0, "cs", "co")
+  # offset term or not
   offset <- ifelse(length(offset_columns) != 0, T, F)
+  # create a Result dir under the trial folder (if not exist)
   drive_folder <- paste0(
     cfg$path, dir(cfg$path)[i], "/Results"
   )  # Windows
