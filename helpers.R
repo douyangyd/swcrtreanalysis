@@ -42,7 +42,7 @@ get_coef <- function(model, rse_type, ss_correct){
   model_est <- model_summary$coefficients["Treatment",1]
   model_se <- model_summary$coefficients["Treatment",2]
   
-  model_rse <- vcovCR(model, type = rse_type)
+  rse.matrix <- model_rse <- vcovCR.glmerMod(model, type = rse_type)
   model_rse <- sqrt(model_rse["Treatment", "Treatment"])
   
   ### Construct CI depending on SS correction
@@ -67,6 +67,7 @@ get_coef <- function(model, rse_type, ss_correct){
     lte_rse = model_rse,
     lteci = modelci,
     lterseci = modelci_rse,
+    vcov_rv = rse.matrix,
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
@@ -90,7 +91,7 @@ get_eticoef <- function(model, rse_type, ss_correct){
   A <- matrix(rep(1/index_max), index_max, nrow=1)
   model_est <- (A %*% coeffs)[1]
   model_se <- (sqrt(A %*% sigma.matrix %*% t(A)))[1,1]
-  model_rse <- vcovCR(model, type = rse_type)
+  rse.matrix <- model_rse <- vcovCR.glmerMod(model, type = rse_type)
   lte_rse <- model_rse[indices,indices][index_max, index_max]
   sigmarse.matrix <- model_rse[indices,indices]
   model_rse <- (sqrt(A %*% sigmarse.matrix %*% t(A)))[1,1]
@@ -122,6 +123,7 @@ get_eticoef <- function(model, rse_type, ss_correct){
     lte_rse = lte_rse,
     lteci = lteci,
     lterseci = lteci_rse,
+    vcov_rv = rse.matrix,
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
@@ -194,7 +196,7 @@ get_ncscoef <- function(model, data, rse_type, ss_correct, ns_basis, J, nnode){
   
   coeffs_b_new <- as.numeric(B %*% coeffs_b)
   sigma.matrix <- B %*% sigma.matrix_b %*% t(B)
-  model_rse <- vcovCR(model, type = rse_type)
+  rse.matrix <- model_rse <- vcovCR.glmerMod(model, type = rse_type)
   sigmarse.matrix <- model_rse[indices,indices]
   sigmarse.matrix <- B %*% sigmarse.matrix %*% t(B)
   
@@ -229,6 +231,7 @@ get_ncscoef <- function(model, data, rse_type, ss_correct, ns_basis, J, nnode){
     lte_rse = "NA",
     lteci = "NA",
     lterseci = "NA",
+    vcov_rv = rse.matrix,
     converged = performance::check_convergence(model)[1],
     lme4_converged = ifelse(model@optinfo$conv$opt==0, TRUE, FALSE),
     messages = model@optinfo$conv$lme4$messages
