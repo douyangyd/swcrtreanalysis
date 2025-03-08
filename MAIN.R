@@ -6,7 +6,7 @@ cfg <- list(
            "sandwich", "clubSandwich", "WoodburyMatrix", "steppedwedge","htmltools","webshot","DT"),
   path = "G:/Shared drives/Stepped Wedge Data Files/Trials/",
   wd = "swcrtreanalysis",
-  ind = 25 # This corresponds to the datasets in dir(cfg$path)
+  ind = c(5) # This corresponds to the datasets in dir(cfg$path)
   # ind = c(1:74)
 )
 
@@ -35,15 +35,14 @@ for (i in cfg$ind) {
   ))
   dataname <- print(dir(cfg$path)[i])
   head(data)
-  source("G:/Shared drives/Stepped Wedge Data Files/Software/Data Analysis/Data_processing.R") 
+  #source("G:/Shared drives/Stepped Wedge Data Files/Software/Data Analysis/Data_processing.R") 
+  source("~/OneDrive/SickKids/Method Project/TimedependentRVE/swcrtreanalysis2/data_processing_test.R") 
   # number of outcomes in this dataset
   length(outcome_columns)
   # type of outcomes for each outcome
   family
   # cs or co design
   design <- ifelse(length(ind_columns) == 0, "cs", "co")
-  # offset term or not
-  offset <- ifelse(length(offset_columns) != 0, T, F)
   # create a Result dir under the trial folder (if not exist)
   drive_folder <- paste0(
     cfg$path, dir(cfg$path)[i], "/Results"
@@ -59,8 +58,8 @@ for (i in cfg$ind) {
       data = data[[j]],
       family = family[j], 
       design = design,
-      rse_type = "classic",
-      offset = offset,
+      rse_type = "MD",
+      offset = !is.null(data[[j]]$offset),
       ss_correct = T
     )
     table <- summary_table(result)
@@ -76,13 +75,12 @@ for (i in cfg$ind) {
                                "rse = robust standard error", 
                                "ci = confidence interval",
                                "lte = long-term treatment effect"))
+    result$design <- design
     setwd(drive_folder)
     saveRDS(result, file_name1)
     html_file <- tempfile(fileext = ".html")
     saveWidget(table, html_file)
     webshot(html_file, file_name2)
   }
-  
-  
 }
 
