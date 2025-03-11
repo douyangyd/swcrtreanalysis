@@ -3,9 +3,9 @@
 cfg <- list(
   quiet = T,
   pkgs = c("dplyr", "msm", "lmerTest", "splines", "performance", "stringr",
-           "sandwich", "clubSandwich", "WoodburyMatrix", "steppedwedge","htmltools","webshot","DT"),
+           "sandwich", "clubSandwich", "WoodburyMatrix", "steppedwedge",
+           "htmltools", "webshot", "DT", "here"),
   path = "G:/Shared drives/Stepped Wedge Data Files/Trials/",
-  wd = "swcrtreanalysis",
   ind = c(5) # This corresponds to the datasets in dir(cfg$path)
   # ind = c(1:74)
 )
@@ -22,7 +22,8 @@ for (pkg in c(cfg$pkgs)) {
 }
 
 # Source necessary files
-setwd("G:/Shared drives/Stepped Wedge Data Files/Software/Data Analysis")
+here::i_am("swcrtreanalysis/MAIN.R")
+setwd(paste0(here::here(), "/swcrtreanalysis"))
 files <- c("data_analysis.R", "helpers.R", "process results.R")
 for (file in files) { do.call("source", list(file)) }
 source("G:/Shared drives/Stepped Wedge Data Files/Software/Robust Variance/vcovCRglmerMod.R") # Temporary
@@ -35,8 +36,8 @@ for (i in cfg$ind) {
   ))
   dataname <- print(dir(cfg$path)[i])
   head(data)
-  #source("G:/Shared drives/Stepped Wedge Data Files/Software/Data Analysis/Data_processing.R") 
-  source("~/OneDrive/SickKids/Method Project/TimedependentRVE/swcrtreanalysis2/data_processing_test.R") 
+  source("Data_processing.R")
+  # source("~/OneDrive/SickKids/Method Project/TimedependentRVE/swcrtreanalysis2/data_processing_test.R") 
   # number of outcomes in this dataset
   length(outcome_columns)
   # type of outcomes for each outcome
