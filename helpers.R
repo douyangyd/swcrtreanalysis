@@ -34,7 +34,7 @@ format_reest <- function(reest){
 
 
 
-F## Function to process it models
+## Function to process it models
 get_coef <- function(model, rse_type, ss_correct){
   model_summary <- summary(model$model)
   model_vcov <- vcov(model$model)
