@@ -154,19 +154,19 @@ fit <- function(
     if(is.null(model1) == T){
       ncsm1_result <- NULL
     } else {
-      ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct, ns_basis, J, n_knots)
+      ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct)
     }
     
     if(is.null(model2) == T){
       ncsm2_result <- NULL
     } else {
-      ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct, ns_basis, J, n_knots)
+      ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct)
     }
     
     if(is.null(model3) == T){
       ncsm3_result <- NULL
     } else {
-      ncsm3_result <- get_ncscoef(model3, data, rse_type, ss_correct, ns_basis, J, n_knots)
+      ncsm3_result <- get_ncscoef(model3, data, rse_type, ss_correct)
     }
   
   

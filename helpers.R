@@ -172,44 +172,21 @@ get_tehcoef <- function(model, ss_correct){
 
 
 ## Function to process ncs models
-get_ncscoef <- function(model, data, rse_type, ss_correct, ns_basis, J, n_knots){
+get_ncscoef <- function(model, data, rse_type, ss_correct){
+  
   model_summary <- summary(model$model)
   model_reest <- model_summary$varcor
-  # Specify the indices corresponding to the spline terms
-  indices <- grep("^b[0-9]+$", rownames(model_summary$coefficients))
-  index_max <- length(indices)
+
+  model_est <- model$te_est
+  model_se <- model$te_se
   
-  coeffs_b <- model_summary$coefficients[,1][indices]
-  sigma.matrix_b <- stats::vcov(model$model)[indices,indices]
-  
-  # Get number of unique (non-zero) exposure times
-  exp_timepoints <- unique(data$Exposure[data$Exposure != 0])
-  num_exp_timepoints <- length(exp_timepoints)
-  max_exp_timepoint <- max(exp_timepoints)
-  
-  B <- matrix(NA, nrow=(J-1), ncol = n_knots)
-  for (i in 1:(J-1)) {
-    for (j in 1:(n_knots)) {
-      B[i,j] <- ns_basis[i+1,j]
-    }
-  }
-  
-  coeffs_b_new <- as.numeric(B %*% coeffs_b)
-  sigma.matrix <- B %*% sigma.matrix_b %*% t(B)
-  rse.matrix <- model_rse <- vcovCR.glmerMod(model$model, type = rse_type)
-  sigmarse.matrix <- model_rse[indices,indices]
-  sigmarse.matrix <- B %*% sigmarse.matrix %*% t(B)
-  
-  
-  A <- matrix(rep(1/num_exp_timepoints, num_exp_timepoints), nrow=1)
-  model_est <- (A %*% coeffs_b_new)[1]
-  model_se <- (sqrt(A %*% sigma.matrix %*% t(A)))[1,1]
-  model_rse <- (sqrt(A %*% sigmarse.matrix %*% t(A)))[1,1]
-  
+  # Still working on implementing the robust standard error
+  model_rse <- NA
+  rse.matrix <- NA
   
   ### obtain CI depending on SS correction
   if (ss_correct == T){
-    dof <- model_summary$ngrps[["Cluster"]] - 2
+    dof <- model_summary$ngrps[["cluster_id"]] - 2
     modelci <- cal_confint_t(pe = model_est, df = dof, se = model_se)
     modelci_rse <- cal_confint_t(pe = model_est, df = dof, se = model_rse)
   } else {
@@ -217,6 +194,7 @@ get_ncscoef <- function(model, data, rse_type, ss_correct, ns_basis, J, n_knots)
     modelci_rse <- model_est + c(-1.96,1.96) * model_rse
   }
   
+  lte_ind <- which.max(model$effect_curve$exp_time)
   list <- list(
     model = model$model,
     lte = "NA",
@@ -226,10 +204,10 @@ get_ncscoef <- function(model, data, rse_type, ss_correct, ns_basis, J, n_knots)
     rse = model_rse,
     ci = modelci,
     rseci = modelci_rse,
-    lte = "NA",
-    lte_se = "NA",
+    lte = model$effect_curve$est[lte_ind],
+    lte_se = model$effect_curve$se[lte_ind],
     lte_rse = "NA",
-    lteci = "NA",
+    lteci = c(model$effect_curve$ci_lower[lte_ind],model$effect_curve$ci_upper[lte_ind]),
     lterseci = "NA",
     vcov_rv = rse.matrix,
     converged = performance::check_convergence(model$model)[1],
