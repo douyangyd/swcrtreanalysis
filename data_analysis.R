@@ -3,7 +3,7 @@ fit <- function(
     family,                #
     rse_type,              # rse type: MD was recommended 
     ss_correct,            # Whether small sample correction will be applied: T/F
-    offset = FALSE,
+    offset = NULL,
     design                 # cs = cross-section; co = cohort 
     #re
 ){
@@ -21,7 +21,7 @@ fit <- function(
   
   results <- list()
   
-  if (offset == F) {f_offset <- ""} else {
+  if (is.null(offset) == T) {swdat$offset <- NULL} else {
     swdat$offset <- as.numeric(as.character(data$offset))
   }
   
@@ -30,14 +30,14 @@ fit <- function(
   ################################################
   
   if (design == "cs") {
-    model1 <- try(analyze(dat=swdat, family=family, re=c("clust","time")), silent=T)
-    model2 <- try(analyze(dat=swdat, family=family, re=c("clust")), silent=T)
+    model1 <- try(analyze(dat=swdat, family=family, offset = offset, re=c("clust","time")), silent=T)
+    model2 <- try(analyze(dat=swdat, family=family, offset = offset, re=c("clust")), silent=T)
     model3 <- NULL
   } 
   if (design == "co"){
-    model1 <- try(analyze(dat=swdat, family=family, re=c("clust","time","ind")), silent=T)
-    model2 <- try(analyze(dat=swdat, family=family, re=c("clust","ind")), silent=T)
-    model3 <- try(analyze(dat=swdat, family=family, re=c("clust")), silent=T)
+    model1 <- try(analyze(dat=swdat, family=family, offset = offset, re=c("clust","time","ind")), silent=T)
+    model2 <- try(analyze(dat=swdat, family=family, offset = offset, re=c("clust","ind")), silent=T)
+    model3 <- try(analyze(dat=swdat, family=family, offset = offset, re=c("clust")), silent=T)
   }
   
     if(any(class(model1) %in% "try-error") ){
@@ -64,14 +64,14 @@ fit <- function(
   ################################################.  
 
   if (design == "cs"){
-    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, re=c("clust","time")), silent=T)
-    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, re=c("clust")), silent=T)
+    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, offset = offset, re=c("clust","time")), silent=T)
+    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, offset = offset, re=c("clust")), silent=T)
     model3 <- NULL
   }
   if (design == "co"){
-    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, re=c("clust","time","ind")), silent=T)
-    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, re=c("clust","ind")), silent=T)
-    model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, re=c("clust")), silent=T)
+    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, offset = offset, re=c("clust","time","ind")), silent=T)
+    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, offset = offset, re=c("clust","ind")), silent=T)
+    model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, offset = offset, re=c("clust")), silent=T)
   }
   
     if(any(class(model1) %in% "try-error") ){
@@ -99,13 +99,13 @@ fit <- function(
   #####################################################.
 
   if (design == "cs"){
-    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, re=c("clust","time")), silent=T)
-    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, re=c("clust")), silent=T)
+    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, offset = offset, re=c("clust","time")), silent=T)
+    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, offset = offset, re=c("clust")), silent=T)
   }
   if (design == "co"){
-    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, re=c("clust","time","ind")), silent=T)
-    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, re=c("clust","ind")), silent=T)
-    model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, re=c("clust")), silent=T)
+    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, offset = offset, re=c("clust","time","ind")), silent=T)
+    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, offset = offset, re=c("clust","ind")), silent=T)
+    model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, offset = offset, re=c("clust")), silent=T)
   }
   
     if(any(class(model1) %in% "try-error") ){
@@ -136,18 +136,18 @@ fit <- function(
   n_knots <- ceiling(length(unique(swdat$exposure_time))/2)
   if (design == "cs"){
     model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          re=c("clust","time"), n_knots_exp=n_knots), silent=T)
+                          offset = offset, re=c("clust","time"), n_knots_exp=n_knots), silent=T)
     model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          re=c("clust"), n_knots_exp=n_knots), silent=T)
+                          offset = offset, re=c("clust"), n_knots_exp=n_knots), silent=T)
     model3 <- NULL
   }
   if (design == "co"){
     model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          re=c("clust","time","ind"), n_knots_exp=n_knots), silent=T)
+                          offset = offset, re=c("clust","time","ind"), n_knots_exp=n_knots), silent=T)
     model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          re=c("clust","ind"), n_knots_exp=n_knots), silent=T)
+                          offset = offset, re=c("clust","ind"), n_knots_exp=n_knots), silent=T)
     model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          re=c("clust"), n_knots_exp=n_knots), silent=T)
+                          offset = offset, re=c("clust"), n_knots_exp=n_knots), silent=T)
   }
     
     if(any(class(model1) %in% "try-error") ){
