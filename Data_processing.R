@@ -1,10 +1,11 @@
 # Identify different types of outcome variables
 outcome_columns <- grep("out", names(data), value = TRUE)
+outcome_columns <- outcome_columns[grep("con|bin|poiss", outcome_columns)]
 off_columns <- grep("off", names(data), value = TRUE)
 ind_columns <- grep("id_individual", names(data), value = TRUE)
 out_poiss_vars <- grep("out_poiss", names(data), value = TRUE)  # Poisson outcomes
 out_other_vars <- setdiff(grep("out_", names(data), value = TRUE), out_poiss_vars)  # Other outcomes
-
+out_other_vars <- out_other_vars[grep("con|bin", out_other_vars)]
 
 process_data <- function(data){
   # Create the list of datasets
