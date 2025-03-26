@@ -22,7 +22,7 @@ fit <- function(
   results <- list()
   
   if (is.null(offset) == T) {swdat$offset <- NULL} else {
-    swdat$offset <- as.numeric(as.character(data$offset))
+    swdat$offset <- log(as.numeric(as.character(data$offset)))
   }
   
   ################################################.
