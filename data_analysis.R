@@ -41,19 +41,19 @@ fit <- function(
     model3 <- try(analyze(dat=swdat, family=family, re=c("clust")), silent=T)
   }
   
-    if(is.null(model1) == T){
+    if(any(class(model1) %in% "try-error") ){
       itm1_result <- NULL
     } else {
       itm1_result <- get_coef(model1, rse_type, ss_correct)
     }
     
-    if(is.null(model2) == T){
+    if(any(class(model2) %in% "try-error") ){
       itm2_result <- NULL
     } else {
       itm2_result <- get_coef(model2, rse_type, ss_correct)
     }
     
-    if(is.null(model3) == T){
+    if(is.null(model3) | any(class(model3) %in% "try-error") ){
       itm3_result <- NULL
     } else {
       itm3_result <- get_coef(model3, rse_type, ss_correct)
@@ -75,19 +75,19 @@ fit <- function(
     model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, re=c("clust")), silent=T)
   }
   
-    if(is.null(model1) == T){
+    if(any(class(model1) %in% "try-error") ){
       etim1_result <- NULL
     } else {
       etim1_result <- get_eticoef(model1, rse_type, ss_correct)
     }
     
-    if(is.null(model2) == T){
+    if(any(class(model2) %in% "try-error") ){
       etim2_result <- NULL
     } else {
       etim2_result <- get_eticoef(model2, rse_type, ss_correct)
     }
     
-    if(is.null(model3) == T){
+    if(is.null(model3) | any(class(model3) %in% "try-error") ){
       etim3_result <- NULL
     } else {
       etim3_result <- get_eticoef(model3, rse_type, ss_correct)
@@ -109,19 +109,19 @@ fit <- function(
     model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, re=c("clust")), silent=T)
   }
   
-    if(is.null(model1) == T){
+    if(any(class(model1) %in% "try-error") ){
       tehm1_result <- NULL
     } else {
       tehm1_result <- get_tehcoef(model1, ss_correct)
     }
     
-    if(is.null(model2) == T){
+    if(any(class(model2) %in% "try-error") ){
       tehm2_result <- NULL
     } else {
       tehm2_result <- get_tehcoef(model2, ss_correct)
     }
     
-    if(is.null(model3) == T){
+    if(is.null(model3) | any(class(model3) %in% "try-error") ){
       tehm3_result <- NULL
     } else {
       tehm3_result <- get_tehcoef(model3, ss_correct)
@@ -134,7 +134,7 @@ fit <- function(
   
   
   ## Cubic spline
-  n_knots <- ceiling(length(unique(data$Exposure))/2)
+  n_knots <- ceiling(length(unique(swdat$exposure_time))/2)
   if (design == "cs"){
     model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
                           re=c("clust","time"), n_knots_exp=n_knots), silent=T)
@@ -151,19 +151,19 @@ fit <- function(
                           re=c("clust"), n_knots_exp=n_knots), silent=T)
   }
     
-    if(is.null(model1) == T){
+    if(any(class(model1) %in% "try-error") ){
       ncsm1_result <- NULL
     } else {
       ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct)
     }
     
-    if(is.null(model2) == T){
+    if(any(class(model2) %in% "try-error") ){
       ncsm2_result <- NULL
     } else {
       ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct)
     }
     
-    if(is.null(model3) == T){
+    if(is.null(model3) | any(class(model3) %in% "try-error") ){
       ncsm3_result <- NULL
     } else {
       ncsm3_result <- get_ncscoef(model3, data, rse_type, ss_correct)
