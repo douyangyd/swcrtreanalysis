@@ -7,30 +7,32 @@ cal_confint_t <- function(pe, df, se){
 
 
 ## format RE estimates for presentation
-format_reest <- function(reest){
+format_reest <- function(reest) {
   random_effects <- as.data.frame(reest)
   
   # Process the random effects table
   random_effects_table <- random_effects %>%
-    dplyr::select(grp = grp, name = var1, std_dev = sdcor, var = vcov) %>%
+    dplyr::select(grp = grp, name = var1, std_dev = sdcor, variance = vcov) %>%
     dplyr::mutate(
       grp = as.character(grp),
-      name = ifelse(is.na(name), "(Intercept)", name),  # Handle missing variable names
-      var = ifelse(is.na(var), "", format(round(var, 3), nsmall = 3)) # Handle missing correlations
+      grp = dplyr::recode(grp, "ij" = "Cluster-period"),  # Rename groups
+      name = ifelse(is.na(name), "(Intercept)", name),
+      variance_str = ifelse(is.na(variance), "", format(round(variance, 3), nsmall = 3))
     )
   
   random_effect_strings <- apply(random_effects_table, 1, function(row) {
     paste0(
-      row["grp"], ": ", row["name"], "<br>",
-      "&nbsp;&nbsp;Std.Dev = ", format(as.numeric(row["std_dev"]), digits = 3),
-      if (row["var"] != "") paste0(", var = ", row["var"]) else "",
-      "<br>"
+      row["grp"], ": ", row["name"], "\n",
+      "  Std.Dev = ", format(as.numeric(row["std_dev"]), digits = 3),
+      if (row["variance_str"] != "") paste0(", var = ", row["variance_str"]) else ""
     )
   })
-  random_effect_summary  <- random_effect_strings
+  
+  # Collapse all group blocks into a single plain text string with newlines
+  random_effect_summary <- paste(random_effect_strings, collapse = "\n\n")
+  
   return(random_effect_summary)
 }
-
 
 
 
