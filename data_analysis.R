@@ -12,10 +12,10 @@ fit <- function(
   data2 <- data
   if (is.factor(data2$Period)) { data2$Period <- as.numeric(data2$Period) }
   if (design=="cs") {
-    swdat <- load_data(time="Period", cluster_id="Cluster", treatment="Treatment",
+    swdat <<- load_data(time="Period", cluster_id="Cluster", treatment="Treatment",
                        outcome="Outcome", data=data2)
   } else if (design=="co") {
-    swdat <- load_data(time="Period", cluster_id="Cluster", individual_id="id_individual",
+    swdat <<- load_data(time="Period", cluster_id="Cluster", individual_id="id_individual",
                        treatment="Treatment", outcome="Outcome", data=data2)
   }
   
@@ -154,19 +154,19 @@ fit <- function(
     if(any(class(model1) %in% "try-error") ){
       ncsm1_result <- NULL
     } else {
-      ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct)
+      ncsm1_result <- get_ncscoef(model1, swdat, rse_type, ss_correct)
     }
     
     if(any(class(model2) %in% "try-error") ){
       ncsm2_result <- NULL
     } else {
-      ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct)
+      ncsm2_result <- get_ncscoef(model2, swdat, rse_type, ss_correct)
     }
     
     if(is.null(model3) | any(class(model3) %in% "try-error") ){
       ncsm3_result <- NULL
     } else {
-      ncsm3_result <- get_ncscoef(model3, data, rse_type, ss_correct)
+      ncsm3_result <- get_ncscoef(model3, swdat, rse_type, ss_correct)
     }
   
   
