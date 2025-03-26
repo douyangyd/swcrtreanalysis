@@ -40,6 +40,7 @@ fit <- function(
     model2 <- try(analyze(dat=swdat, family=family, re=c("clust","ind")), silent=T)
     model3 <- try(analyze(dat=swdat, family=family, re=c("clust")), silent=T)
   }
+  
     if(is.null(model1) == T){
       itm1_result <- NULL
     } else {
@@ -73,6 +74,7 @@ fit <- function(
     model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, re=c("clust","ind")), silent=T)
     model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, re=c("clust")), silent=T)
   }
+  
     if(is.null(model1) == T){
       etim1_result <- NULL
     } else {
@@ -106,6 +108,7 @@ fit <- function(
     model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, re=c("clust","ind")), silent=T)
     model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, re=c("clust")), silent=T)
   }
+  
     if(is.null(model1) == T){
       tehm1_result <- NULL
     } else {
@@ -131,71 +134,47 @@ fit <- function(
   
   
   ## Cubic spline
-  data$Period <- as.numeric(as.character(data$Period))
-  J <- length(unique(data$Exposure))
-  nnode <-  ceiling((J)/2)
-  ns_basis <- ns(c(0:(J-1)), knots = (1:(nnode-1))*(J-1)/(nnode))
-  
-  for (i in 1:(nnode)) {
-    new_vector <- ns_basis[data$Exposure+1,i]  # Example: random numbers
-    data[[paste0("b", i)]] <- new_vector
-  }
-  
-  b_vars <- paste0("b", 1:(nnode))
-  formula1 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), fre1 ))
-  formula2 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), fre2 ))
-  formula3 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), fre3 ))
-  formula4 <- as.formula(paste("Outcome ~ factor(Period) + ", paste(b_vars, collapse = " + "), fre4 ))
-  
+  n_knots <- ceiling(length(unique(data$Exposure))/2)
   if (design == "cs"){
-    if(family == "gaussian"){
-      model1 <- try(lme4::lmer(formula3, data = data), silent = TRUE)
-      model2 <- try(lme4::lmer(formula4, data = data), silent = TRUE)
-    } else {
-      model1 <- try(glmer(formula3, family = family, data = data), silent = TRUE)
-      model2 <- try(glmer(formula4, family = family, data = data), silent = TRUE)
-    }
-    
-    if(is.null(model1) == T){
-      ncsm1_result <- NULL
-    } else {
-      ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct, ns_basis, J, nnode)
-    }
-    
-    if(is.null(model1) == T){
-      ncsm2_result <- NULL
-    } else {
-      ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct, ns_basis, J, nnode)
-    }
+    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                          re=c("clust","time"), n_knots_exp=n_knots), silent=T)
+    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                          re=c("clust"), n_knots_exp=n_knots), silent=T)
+    model3 <- NULL
   }
   if (design == "co"){
-    if(family == "gaussian"){
-      model1 <- try(lme4::lmer(formula1, data = data), silent = TRUE)
-      model2 <- try(lme4::lmer(formula2, data = data), silent = TRUE)
-      model3 <- try(lme4::lmer(formula4, data = data), silent = TRUE)
-    } else {
-      model1 <- try(glmer(formula1, family = family, data = data), silent = TRUE)
-      model2 <- try(glmer(formula2, family = family, data = data), silent = TRUE)
-      model3 <- try(glmer(formula4, family = family, data = data), silent = TRUE)
-    }
+    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                          re=c("clust","time","ind"), n_knots_exp=n_knots), silent=T)
+    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                          re=c("clust","ind"), n_knots_exp=n_knots), silent=T)
+    model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                          re=c("clust"), n_knots_exp=n_knots), silent=T)
+  }
+    
     if(is.null(model1) == T){
       ncsm1_result <- NULL
     } else {
-      ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct, ns_basis, J, nnode)
+      ncsm1_result <- get_ncscoef(model1, data, rse_type, ss_correct)
     }
     
     if(is.null(model2) == T){
       ncsm2_result <- NULL
     } else {
-      ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct, ns_basis, J, nnode)
+      ncsm2_result <- get_ncscoef(model2, data, rse_type, ss_correct)
     }
     
     if(is.null(model3) == T){
       ncsm3_result <- NULL
     } else {
-      ncsm3_result <- get_ncscoef(model3, data, rse_type, ss_correct, ns_basis, J, nnode)
+      ncsm3_result <- get_ncscoef(model3, data, rse_type, ss_correct)
     }
-  }
+  
+  
+  
+  ##########################################.
+  #####    COnstruct results object    #####
+  ##########################################.
+  
   if (design == "cs"){
     results <- list(family = family, itm1=itm1_result, itm2=itm2_result, etim1 = etim1_result, etim2 = etim2_result, 
                     tehm1 = tehm1_result, tehm2 = tehm2_result, ncsm1 = ncsm1_result, ncsm2 = ncsm2_result)
