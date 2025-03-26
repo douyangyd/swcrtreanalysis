@@ -174,7 +174,7 @@ get_tehcoef <- function(model, ss_correct){
 
 
 ## Function to process ncs models
-get_ncscoef <- function(model, data, rse_type, ss_correct){
+get_ncscoef <- function(model, data, n_knots, rse_type, ss_correct){
   
   model_summary <- summary(model$model)
   model_reest <- model_summary$varcor
