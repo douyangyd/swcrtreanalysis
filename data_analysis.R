@@ -22,8 +22,7 @@ fit <- function(
   results <- list()
   
   if (offset == F) {f_offset <- ""} else {
-    data$off <- as.numeric(as.character(data[[offset]]))
-    f_offset <- " + offset(log(off))"
+    swdat$offset <- as.numeric(as.character(data$offset))
   }
   
   ################################################.
