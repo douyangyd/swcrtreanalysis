@@ -80,8 +80,8 @@ get_coef <- function(model, rse_type, ss_correct){
 ## Function to process eti models
 get_eticoef <- function(model, rse_type, ss_correct){
   model_summary <- summary(model$model)
-  model_reest <-model_summary$varcor
-  indices <- grep("exposure_time", rownames(model_summary$coefficients))
+  model_reest <- model_summary$varcor
+  indices <- grep("exp_", rownames(model_summary$coefficients))
   index_max <- length(indices)
   lte <- model_summary$coefficients[indices,][index_max,1]
   lte_se <- model_summary$coefficients[indices,][index_max,2]
@@ -199,9 +199,6 @@ get_ncscoef <- function(model, data, rse_type, ss_correct){
   # Extract coefficient estimates and covariance matrix corresponding to spline
   # terms
   coeffs_spl <-  model_summary$coefficients[,1][indices]
-  rse.matrix <- model_rse <- vcovCR.glmerMod(model$model, type = rse_type)
-  sigmarse.matrix <- model_rse[indices,indices]
-  sigmarse.matrix <- B %*% sigmarse.matrix %*% t(B)
   
   # Get number of unique (non-zero) exposure times
   exp_timepoints <- unique(data$exposure_time[data$exposure_time != 0])
