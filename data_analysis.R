@@ -9,7 +9,7 @@ fit <- function(
 ){
   
   # `steppdwedge` setup
-  data2 <- data
+  data2 <- na.omit(data)
   if (is.factor(data2$Period)) { data2$Period <- as.numeric(data2$Period) }
   if (design=="cs") {
     swdat <<- load_data(time="Period", cluster_id="Cluster", treatment="Treatment",
@@ -22,8 +22,11 @@ fit <- function(
   results <- list()
   
   if (is.null(offset) == T) {swdat$offset <- NULL} else {
-    swdat$offset <- log(as.numeric(as.character(data$offset)))
+    swdat$offset <- log(as.numeric(as.character(data2$offset)))
+    swdat <- swdat[swdat$offset>=0,]
   }
+  
+  
   
   ################################################.
   #####       Immediate Treatment (IT)       #####
@@ -133,22 +136,27 @@ fit <- function(
   
   
   ## Cubic spline
-  n_knots <- ceiling(length(unique(swdat$exposure_time))/2)
-  if (design == "cs"){
-    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          offset = offset, re=c("clust","time"), n_knots_exp=n_knots), silent=T)
-    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          offset = offset, re=c("clust"), n_knots_exp=n_knots), silent=T)
-    model3 <- NULL
-  }
-  if (design == "co"){
-    model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          offset = offset, re=c("clust","time","ind"), n_knots_exp=n_knots), silent=T)
-    model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          offset = offset, re=c("clust","ind"), n_knots_exp=n_knots), silent=T)
-    model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
-                          offset = offset, re=c("clust"), n_knots_exp=n_knots), silent=T)
-  }
+  if (max(swdat$exposure_time)==2){
+    ncsm1_result <- etim1_result
+    ncsm2_result <- etim2_result
+    ncsm3_result <- etim3_result
+  } else {
+    n_knots <- ceiling(length(unique(swdat$exposure_time))/2)
+    if (design == "cs"){
+      model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                            offset = offset, re=c("clust","time"), n_knots_exp=n_knots), silent=T)
+      model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                            offset = offset, re=c("clust"), n_knots_exp=n_knots), silent=T)
+      model3 <- NULL
+    }
+    if (design == "co"){
+      model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                            offset = offset, re=c("clust","time","ind"), n_knots_exp=n_knots), silent=T)
+      model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                            offset = offset, re=c("clust","ind"), n_knots_exp=n_knots), silent=T)
+      model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="NCS", family=family,
+                            offset = offset, re=c("clust"), n_knots_exp=n_knots), silent=T)
+    }
     
     if(any(class(model1) %in% "try-error") ){
       ncsm1_result <- NULL
@@ -167,6 +175,7 @@ fit <- function(
     } else {
       ncsm3_result <- get_ncscoef(model3, swdat, n_knots, rse_type, ss_correct)
     }
+  }
   
   
   

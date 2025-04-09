@@ -222,7 +222,7 @@ get_ncscoef <- function(model, data, n_knots, rse_type, ss_correct){
   
   
   num_estimand_timepoints <- max(exp_timepoints)
-  M <- matrix(rep(1/num_exp_timepoints, num_exp_timepoints), nrow=1)
+  M <- matrix(rep(1/num_estimand_timepoints, num_estimand_timepoints), nrow=1)
   model_rse <- (sqrt(M %*% sigmarse.matrix %*% t(M)))[1,1]
   
 
