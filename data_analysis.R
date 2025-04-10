@@ -12,11 +12,16 @@ fit <- function(
   data2 <- na.omit(data)
   if (is.factor(data2$Period)) { data2$Period <- as.numeric(data2$Period) }
   if (design=="cs") {
-    swdat <<- load_data(time="Period", cluster_id="Cluster", treatment="Treatment",
-                       outcome="Outcome", data=data2)
+    swdat <<- load_data(
+      time="Period", cluster_id="Cluster", treatment="Treatment",
+      outcome="Outcome", exposure_time="time_on_trt", data=data2
+    )
   } else if (design=="co") {
-    swdat <<- load_data(time="Period", cluster_id="Cluster", individual_id="id_individual",
-                       treatment="Treatment", outcome="Outcome", data=data2)
+    swdat <<- load_data(
+      time="Period", cluster_id="Cluster", individual_id="id_individual",
+      treatment="Treatment", outcome="Outcome", exposure_time="time_on_trt",
+      data=data2
+    )
   }
   
   results <- list()
