@@ -4,6 +4,7 @@ fit <- function(
     rse_type,              # rse type: MD was recommended 
     ss_correct,            # Whether small sample correction will be applied: T/F
     offset = NULL,
+    aggregate = F,
     design                 # cs = cross-section; co = cohort 
     #re
 ){
@@ -11,14 +12,26 @@ fit <- function(
   # `steppdwedge` setup
   data2 <- na.omit(data)
   if (is.factor(data2$Period)) { data2$Period <- as.numeric(data2$Period) }
-  if (design=="cs") {
-    swdat <<- load_data(time="Period", cluster_id="Cluster", treatment="Treatment",
-                       outcome="Outcome", data=data2)
-  } else if (design=="co") {
-    swdat <<- load_data(time="Period", cluster_id="Cluster", individual_id="id_individual",
-                       treatment="Treatment", outcome="Outcome", data=data2)
+  if (aggregate == T) {
+    swdat <<- load_data(
+      time="Period", cluster_id="Cluster", treatment="Treatment",
+      outcome = c("out_numerator", "out_denominator"), exposure_time="Exposure", data=data2
+    )
+  } else {
+    if (design=="cs") {
+      swdat <<- load_data(
+        time="Period", cluster_id="Cluster", treatment="Treatment",
+        outcome="Outcome", exposure_time="Exposure", data=data2
+      )
+    } else if (design=="co") {
+      swdat <<- load_data(
+        time="Period", cluster_id="Cluster", individual_id="id_individual",
+        treatment="Treatment", outcome="Outcome", exposure_time="Exposure",
+        data=data2
+      )
+    }
   }
-  
+
   results <- list()
   
   if (is.null(offset) == T) {swdat$offset <- NULL} else {
@@ -43,29 +56,29 @@ fit <- function(
     model3 <- try(analyze(dat=swdat, family=family, offset = offset, re=c("clust")), silent=T)
   }
   
-    if(any(class(model1) %in% "try-error") ){
-      itm1_result <- NULL
-    } else {
-      itm1_result <- get_coef(model1, rse_type, ss_correct)
-    }
-    
-    if(any(class(model2) %in% "try-error") ){
-      itm2_result <- NULL
-    } else {
-      itm2_result <- get_coef(model2, rse_type, ss_correct)
-    }
-    
-    if(is.null(model3) | any(class(model3) %in% "try-error") ){
-      itm3_result <- NULL
-    } else {
-      itm3_result <- get_coef(model3, rse_type, ss_correct)
-    }
+  if(any(class(model1) %in% "try-error") ){
+    itm1_result <- NULL
+  } else {
+    itm1_result <- get_coef(model1, rse_type, ss_correct)
+  }
+  
+  if(any(class(model2) %in% "try-error") ){
+    itm2_result <- NULL
+  } else {
+    itm2_result <- get_coef(model2, rse_type, ss_correct)
+  }
+  
+  if(is.null(model3) | any(class(model3) %in% "try-error") ){
+    itm3_result <- NULL
+  } else {
+    itm3_result <- get_coef(model3, rse_type, ss_correct)
+  }
   
   
   ################################################.
   #####    Exposure Time Indicator (ETI)     #####
   ################################################.  
-
+  
   if (design == "cs"){
     model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, offset = offset, re=c("clust","time")), silent=T)
     model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, offset = offset, re=c("clust")), silent=T)
@@ -77,30 +90,30 @@ fit <- function(
     model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="ETI", family=family, offset = offset, re=c("clust")), silent=T)
   }
   
-    if(any(class(model1) %in% "try-error") ){
-      etim1_result <- NULL
-    } else {
-      etim1_result <- get_eticoef(model1, rse_type, ss_correct)
-    }
-    
-    if(any(class(model2) %in% "try-error") ){
-      etim2_result <- NULL
-    } else {
-      etim2_result <- get_eticoef(model2, rse_type, ss_correct)
-    }
-    
-    if(is.null(model3) | any(class(model3) %in% "try-error") ){
-      etim3_result <- NULL
-    } else {
-      etim3_result <- get_eticoef(model3, rse_type, ss_correct)
-    }
+  if(any(class(model1) %in% "try-error") ){
+    etim1_result <- NULL
+  } else {
+    etim1_result <- get_eticoef(model1, rse_type, ss_correct)
+  }
+  
+  if(any(class(model2) %in% "try-error") ){
+    etim2_result <- NULL
+  } else {
+    etim2_result <- get_eticoef(model2, rse_type, ss_correct)
+  }
+  
+  if(is.null(model3) | any(class(model3) %in% "try-error") ){
+    etim3_result <- NULL
+  } else {
+    etim3_result <- get_eticoef(model3, rse_type, ss_correct)
+  }
   
   
   
   #####################################################.
   #####   Treatment Effect Heterogeneity (TEH)   #####
   #####################################################.
-
+  
   if (design == "cs"){
     model1 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, offset = offset, re=c("clust","time")), silent=T)
     model2 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, offset = offset, re=c("clust")), silent=T)
@@ -111,23 +124,23 @@ fit <- function(
     model3 <- try(analyze(dat=swdat, estimand_type="TATE", exp_time="TEH", family=family, offset = offset, re=c("clust")), silent=T)
   }
   
-    if(any(class(model1) %in% "try-error") ){
-      tehm1_result <- NULL
-    } else {
-      tehm1_result <- get_tehcoef(model1, ss_correct)
-    }
-    
-    if(any(class(model2) %in% "try-error") ){
-      tehm2_result <- NULL
-    } else {
-      tehm2_result <- get_tehcoef(model2, ss_correct)
-    }
-    
-    if(is.null(model3) | any(class(model3) %in% "try-error") ){
-      tehm3_result <- NULL
-    } else {
-      tehm3_result <- get_tehcoef(model3, ss_correct)
-    }
+  if(any(class(model1) %in% "try-error") ){
+    tehm1_result <- NULL
+  } else {
+    tehm1_result <- get_tehcoef(model1, ss_correct)
+  }
+  
+  if(any(class(model2) %in% "try-error") ){
+    tehm2_result <- NULL
+  } else {
+    tehm2_result <- get_tehcoef(model2, ss_correct)
+  }
+  
+  if(is.null(model3) | any(class(model3) %in% "try-error") ){
+    tehm3_result <- NULL
+  } else {
+    tehm3_result <- get_tehcoef(model3, ss_correct)
+  }
   
   
   ############################################.
@@ -196,4 +209,3 @@ fit <- function(
   return(results)
 }
 
-#testx <- fit(data = data, family = "gaussian", rse_type = "CR0", ss_correct=T, design = "co")
