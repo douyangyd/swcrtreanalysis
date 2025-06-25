@@ -12,7 +12,6 @@ fit <- function(
   # `steppdwedge` setup
   data2 <- na.omit(data)
   if (is.factor(data2$Period)) { data2$Period <- as.numeric(data2$Period) }
-<<<<<<< HEAD
   if (aggregate == T) {
     swdat <<- load_data(
       time="Period", cluster_id="Cluster", treatment="Treatment",
@@ -31,21 +30,8 @@ fit <- function(
         data=data2
       )
     }
-=======
-  if (design=="cs") {
-    swdat <<- load_data(
-      time="Period", cluster_id="Cluster", treatment="Treatment",
-      outcome="Outcome", exposure_time="time_on_trt", data=data2
-    )
-  } else if (design=="co") {
-    swdat <<- load_data(
-      time="Period", cluster_id="Cluster", individual_id="id_individual",
-      treatment="Treatment", outcome="Outcome", exposure_time="time_on_trt",
-      data=data2
-    )
->>>>>>> 228cb0efe6db5abdf8591e4a3d24470e2767cbcc
   }
-
+  
   results <- list()
   
   if (is.null(offset) == T) {swdat$offset <- NULL} else {
@@ -223,3 +209,4 @@ fit <- function(
   return(results)
 }
 
+#testx <- fit(data = data, family = "gaussian", rse_type = "CR0", ss_correct=T, design = "co")
