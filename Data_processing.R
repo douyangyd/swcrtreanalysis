@@ -1,4 +1,5 @@
 # Identify different types of outcome variables
+data <- data[ , !grepl("^out_ord_", names(data))]
 outcome_columns <- grep("out", names(data), value = TRUE)
 outcome_columns <- outcome_columns[grep("con|bin|poiss", outcome_columns)]
 off_columns <- grep("off", names(data), value = TRUE)
