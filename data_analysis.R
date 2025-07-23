@@ -155,7 +155,7 @@ fit <- function(
   
   
   ## Cubic spline
-  if (max(swdat$exposure_time)==2){
+  if (max(swdat$exposure_time) == 3){
     ncsm1_result <- etim1_result
     ncsm2_result <- etim2_result
     ncsm3_result <- etim3_result
